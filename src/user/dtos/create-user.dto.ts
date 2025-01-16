@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsEmail } from 'class-validator';
+import { IsNotEmpty, IsEmail, IsEnum } from 'class-validator';
+import { CurrencyType } from 'src/enum';
 
 export class CreateUserDto {
     @IsNotEmpty({ message: 'email field cannot be empty' })
@@ -9,7 +10,10 @@ export class CreateUserDto {
     password: string;
 
     @IsNotEmpty({ message: 'first_name field cannot be empty' })
-    first_name: string;
+    firstName: string;
 
-    last_name: string;
+    lastName: string;
+
+    @IsEnum(CurrencyType)
+    currency: CurrencyType;
 }

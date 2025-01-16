@@ -1,5 +1,7 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModuleAsyncOptions } from '@nestjs/typeorm';
+import { Category } from 'src/category/category.entity';
+import { Transaction } from 'src/transaction/transaction.entity';
 import { User } from 'src/user/user.entity';
 
 export const typeOrmConfig: TypeOrmModuleAsyncOptions = {
@@ -13,7 +15,7 @@ export const typeOrmConfig: TypeOrmModuleAsyncOptions = {
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
         //entities: [__dirname + '/**/*.entity{.ts,.js}'], // Path to your entities
-        entities: [User],
+        entities: [User, Category, Transaction],
         synchronize: Boolean(configService.get<boolean>('DB_SYNC')), // Auto-sync schema in development (disable in production)
         options: {
             trustServerCertificate: Boolean(

@@ -2,8 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto, UpdateUserDto } from './dtos';
 
 @Injectable()
 export class UserService {
@@ -13,40 +12,41 @@ export class UserService {
     ) {}
 
     async createUser(createUserDto: CreateUserDto): Promise<User> {
-        const { email, first_name, last_name, password } = createUserDto;
+        const { email, firstName, lastName, password, currency } =
+            createUserDto;
         const user = this.userRepository.create({
-            //user_id: '55ade306-c834-4786-a334-087f40dd2d68',
             email,
-            first_name,
-            last_name,
+            firstName,
+            lastName,
             password,
+            currency,
         });
         await this.userRepository.save(user);
         return user;
     }
 
-    async deleteUser(user_id: string) {
-        const result = await this.userRepository.delete(user_id);
+    async deleteUser(Id: string) {
+        const result = await this.userRepository.delete(Id);
         if (result.affected === 0) {
-            throw new NotFoundException(`A user "${user_id}" was not found`);
+            throw new NotFoundException(`A user "${Id}" was not found`);
         }
         return { message: 'User successfully deleted' };
     }
 
-    async updateUser(user_id: string, updateUserDto: UpdateUserDto) {
-        const hasUser = await this.getUserById(user_id);
-        if (!hasUser) throw new Error(`A user "${user_id}" was not found`);
-        await this.userRepository.update(user_id, updateUserDto);
+    async updateUser(Id: string, updateUserDto: UpdateUserDto) {
+        const hasUser = await this.getUserById(Id);
+        if (!hasUser) throw new Error(`A user "${Id}" was not found`);
+        await this.userRepository.update(Id, updateUserDto);
     }
 
     async getAllUsers(): Promise<User[]> {
         return this.userRepository.find();
     }
 
-    async getUserById(user_id: string): Promise<User> {
-        const found = await this.userRepository.findOne({ where: { user_id } });
+    async getUserById(Id: string): Promise<User> {
+        const found = await this.userRepository.findOne({ where: { Id } });
         if (!found) {
-            throw new NotFoundException(`User "${user_id}" not found`);
+            throw new NotFoundException(`User "${Id}" not found`);
         }
         return found;
     }

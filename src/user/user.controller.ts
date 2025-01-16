@@ -8,9 +8,8 @@ import {
     Put,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto, UpdateUserDto } from './dtos';
 import { User } from './user.entity';
-import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UserController {
@@ -29,26 +28,23 @@ export class UserController {
     }
 
     // Retrieve a user by ID
-    @Get('/:user_id')
-    getUserById(@Param('user_id') user_id: string): Promise<User> {
-        return this.userService.getUserById(user_id);
+    @Get('/:Id')
+    getUserById(@Param('Id') Id: string): Promise<User> {
+        return this.userService.getUserById(Id);
     }
 
     // Delete a user by ID
-    @Delete('/:user_id')
-    delete(@Param('user_id') user_id: string) {
-        return this.userService.deleteUser(user_id);
+    @Delete('/:Id')
+    delete(@Param('Id') Id: string) {
+        return this.userService.deleteUser(Id);
     }
 
     // Update a user by ID
-    @Put('/:user_id')
-    async updateNote(
-        @Param('user_id') user_id: string,
-        @Body() data: UpdateUserDto,
-    ) {
+    @Put('/:Id')
+    async updateNote(@Param('Id') Id: string, @Body() data: UpdateUserDto) {
         const user = new User();
         Object.assign(user, data);
-        await this.userService.updateUser(user_id, user);
-        return { message: 'User info successfully updated', user_id };
+        await this.userService.updateUser(Id, user);
+        return { message: 'User info successfully updated', Id };
     }
 }
