@@ -3,13 +3,38 @@ import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto, UpdateUserDto } from './dtos';
+import { Ledger } from 'src/ledger/ledger.entity';
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(User)
         private userRepository: Repository<User>,
+        @InjectRepository(Ledger)
+        private ledgerRepository: Repository<Ledger>,
     ) {}
+
+    async getUserById(Id: string): Promise<User> {
+        const found = await this.userRepository.findOne({
+            where: { Id },
+            select: {
+                Id: true,
+                firstName: true,
+                lastName: true,
+                currency: true,
+                email: true,
+                balance: true,
+            },
+        });
+        if (!found) {
+            throw new NotFoundException(`User "${Id}" not found`);
+        }
+        return found;
+    }
+
+    async getAllUsers(): Promise<User[]> {
+        return this.userRepository.find();
+    }
 
     async createUser(createUserDto: CreateUserDto): Promise<User> {
         const { email, firstName, lastName, password, currency } =
@@ -21,8 +46,17 @@ export class UserService {
             password,
             currency,
         });
+
         await this.userRepository.save(user);
-        return user;
+        const ledger = this.ledgerRepository.create({
+            ledgerName: 'Default',
+            description: '',
+            expenseTotalAmount: 0,
+            incomeTotalAmount: 0,
+            user,
+        });
+        await this.ledgerRepository.save(ledger);
+        return this.getUserById(user.Id);
     }
 
     async deleteUser(Id: string) {
@@ -37,17 +71,5 @@ export class UserService {
         const hasUser = await this.getUserById(Id);
         if (!hasUser) throw new Error(`A user "${Id}" was not found`);
         await this.userRepository.update(Id, updateUserDto);
-    }
-
-    async getAllUsers(): Promise<User[]> {
-        return this.userRepository.find();
-    }
-
-    async getUserById(Id: string): Promise<User> {
-        const found = await this.userRepository.findOne({ where: { Id } });
-        if (!found) {
-            throw new NotFoundException(`User "${Id}" not found`);
-        }
-        return found;
     }
 }

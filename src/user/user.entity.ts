@@ -1,6 +1,6 @@
 import { Category } from 'src/category/category.entity';
 import { CurrencyType } from 'src/enum';
-import { Transaction } from 'src/transaction/transaction.entity';
+import { Ledger } from 'src/ledger/ledger.entity';
 import {
     Column,
     Entity,
@@ -50,6 +50,8 @@ export class User {
     })
     categories: Category[];
 
-    @OneToMany(() => Transaction, (transaction) => transaction.category)
-    transactions: Transaction[];
+    @OneToMany(() => Ledger, (ledger) => ledger.user, {
+        cascade: ['remove'],
+    })
+    ledgers: Ledger[];
 }

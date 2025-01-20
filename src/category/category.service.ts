@@ -1,5 +1,6 @@
 import {
     BadRequestException,
+    ConflictException,
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
@@ -22,39 +23,68 @@ export class CategoryService {
     async createCategory(
         createCategoryDto: CreateCategoryDto,
     ): Promise<Category> {
-        const { categoryName, transType, userId } = createCategoryDto;
-        if (userId != null && userId != '') {
-            const user = await this.userService.getUserById(userId);
+        try {
+            const { categoryName, transType, userId } = createCategoryDto;
+            if (userId != null && userId != '') {
+                const user = await this.userService.getUserById(userId);
 
-            const category = this.categoryRepository.create({
-                categoryName,
-                transType,
-                user,
-            });
-            await this.categoryRepository.save(category);
-            return category;
-        } else {
-            const category = this.categoryRepository.create({
-                categoryName,
-                transType,
-            });
-            await this.categoryRepository.save(category);
-            return category;
+                const category = this.categoryRepository.create({
+                    categoryName,
+                    transType,
+                    user,
+                });
+                await this.categoryRepository.save(category);
+                return this.getCategoryById(category.Id);
+            } else {
+                const category = this.categoryRepository.create({
+                    categoryName,
+                    transType,
+                });
+                await this.categoryRepository.save(category);
+                return category;
+            }
+        } catch (error) {
+            if (error.number === 2601 && error.code === 'EREQUEST') {
+                // Unique constraint violation error code
+                throw new ConflictException(
+                    'Category name must be unique for this user.',
+                );
+            }
+            throw error;
         }
     }
 
     async getCategoryById(Id: string): Promise<Category> {
-        const found = await this.categoryRepository.findOne({ where: { Id } });
+        const found = await this.categoryRepository.findOne({
+            where: { Id },
+            relations: { user: true },
+            select: {
+                user: {
+                    Id: true,
+                },
+            },
+        });
         if (!found) {
             throw new NotFoundException(`Category "${Id}" not found`);
         }
         return found;
     }
 
-    async updateUser(Id: string, updateCategoryDto: UpdateCategoryDto) {
-        const hasCategory = await this.getCategoryById(Id);
-        if (!hasCategory) throw new Error(`A category "${Id}" was not found`);
-        await this.categoryRepository.update(Id, updateCategoryDto);
+    async updateCategory(Id: string, updateCategoryDto: UpdateCategoryDto) {
+        try {
+            const hasCategory = await this.getCategoryById(Id);
+            if (!hasCategory)
+                throw new Error(`A category "${Id}" was not found`);
+            await this.categoryRepository.update(Id, updateCategoryDto);
+        } catch (error) {
+            if (error.number === 2601 && error.code === 'EREQUEST') {
+                // Unique constraint violation error code
+                throw new ConflictException(
+                    'Category name must be unique for this user.',
+                );
+            }
+            throw error;
+        }
     }
 
     async getAllCategories(): Promise<Category[]> {
@@ -73,7 +103,6 @@ export class CategoryService {
         transType: TransactionType,
     ): Promise<Category[]> {
         let categories: Category[];
-        console.log({ userId, transType });
 
         if (userId === undefined && transType === undefined) {
             categories = await this.getAllCategories();
@@ -122,12 +151,8 @@ export class CategoryService {
                 }
             }
         }
-        console.log('out');
 
-        const hasUser = await this.userService.getUserById(userId);
-        if (!hasUser) {
-            throw new NotFoundException(`User "${userId}" not found`);
-        }
+        await this.userService.getUserById(userId);
 
         categories = await this.categoryRepository.find({
             where: { user: { Id: userId }, transType: transType },

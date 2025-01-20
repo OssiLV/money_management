@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsNumber, IsDate } from 'class-validator';
+import { IsEnum, IsOptional, IsNumber, IsDate, IsUUID } from 'class-validator';
 import { TransactionType } from 'src/enum';
 
 export class CreateTransactionDto {
@@ -13,4 +13,10 @@ export class CreateTransactionDto {
 
     @IsEnum(TransactionType)
     transType: TransactionType;
+
+    @IsUUID()
+    categoryId: string;
+
+    @IsUUID()
+    ledgerId: string;
 }

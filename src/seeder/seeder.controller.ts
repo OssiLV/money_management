@@ -1,13 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Post } from '@nestjs/common';
 import { SeederService } from './seeder.service';
 
 @Controller('seeder')
 export class SeederController {
     constructor(private seederService: SeederService) {}
 
-    @Get()
+    @Post()
     async seed() {
-        let result = [];
+        const result = [];
         result.push(await this.seederService.categorySeed());
         return result;
     }

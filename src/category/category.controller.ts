@@ -9,23 +9,26 @@ export class CategoryController {
     constructor(private readonly categoryService: CategoryService) {}
 
     @Post()
-    createCategory(
+    async createCategory(
         @Body() createCategoryDto: CreateCategoryDto,
     ): Promise<Category> {
-        return this.categoryService.createCategory(createCategoryDto);
+        return await this.categoryService.createCategory(createCategoryDto);
     }
 
     // Update a user by ID
     @Put('/:Id')
-    async updateNote(@Param('Id') Id: string, @Body() data: UpdateCategoryDto) {
+    async updateCategory(
+        @Param('Id') Id: string,
+        @Body() data: UpdateCategoryDto,
+    ) {
         const category = new Category();
         Object.assign(category, data);
-        await this.categoryService.updateUser(Id, category);
+        await this.categoryService.updateCategory(Id, category);
         return { message: 'Category info successfully updated', Id };
     }
 
     @Get()
-    getAllCategoriesByUserId(
+    getAllCategories(
         @Query('userId') userId: string,
         @Query('transType') transType: TransactionType,
     ): Promise<Category[]> {

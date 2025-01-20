@@ -5,8 +5,8 @@ import { typeOrmConfig } from './config/typeorm.config';
 import { ConfigModule } from '@nestjs/config';
 import { CategoryModule } from './category/category.module';
 import { TransactionModule } from './transaction/transaction.module';
-import { SeederService } from './seeder/seeder.service';
 import { SeederModule } from './seeder/seeder.module';
+import { LedgerModule } from './ledger/ledger.module';
 
 @Module({
     imports: [
@@ -16,10 +16,11 @@ import { SeederModule } from './seeder/seeder.module';
             envFilePath: ['.env.local', '.env'],
         }),
         TypeOrmModule.forRootAsync(typeOrmConfig),
+        SeederModule,
         UserModule,
         CategoryModule,
         TransactionModule,
-        SeederModule,
+        LedgerModule,
     ],
     controllers: [],
     providers: [],

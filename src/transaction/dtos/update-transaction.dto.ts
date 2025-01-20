@@ -1,11 +1,11 @@
-import { IsNotEmpty, IsEnum, IsOptional, IsNumber } from 'class-validator';
+import { IsEnum, IsOptional, IsNumber, IsDate, IsUUID } from 'class-validator';
 import { TransactionType } from 'src/enum';
 
 export class UpdateTransactionDto {
     @IsOptional({})
     description: string;
 
-    @IsNotEmpty({ message: 'transDate field cannot be empty' })
+    @IsDate({})
     transDate: string;
 
     @IsNumber({})
@@ -13,4 +13,10 @@ export class UpdateTransactionDto {
 
     @IsEnum(TransactionType)
     transType: TransactionType;
+
+    @IsUUID()
+    categoryId: string;
+
+    @IsUUID()
+    ledgerId: string;
 }

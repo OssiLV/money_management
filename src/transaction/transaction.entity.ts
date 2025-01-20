@@ -1,13 +1,13 @@
 import { Category } from 'src/category/category.entity';
 import { TransactionType } from 'src/enum';
-import { User } from 'src/user/user.entity';
+import { Ledger } from 'src/ledger/ledger.entity';
 import {
     Column,
     Entity,
     PrimaryGeneratedColumn,
     ManyToOne,
-    JoinColumn,
     CreateDateColumn,
+    UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('transaction')
@@ -27,23 +27,31 @@ export class Transaction {
     @Column({ name: 'amount', type: 'money', default: 0 })
     amount: number;
 
-    @CreateDateColumn({ name: 'transDate', type: 'datetime', nullable: false })
+    @Column({ name: 'transDate', type: 'datetime', nullable: false })
     transDate: Date;
+
+    @CreateDateColumn({
+        name: 'createdDate',
+        type: 'datetime',
+        nullable: false,
+    })
+    createdDate: Date;
+
+    @UpdateDateColumn({
+        name: 'updatedDate',
+        type: 'datetime',
+        nullable: false,
+    })
+    updatedDate: Date;
 
     @Column({ name: 'description', type: 'nvarchar', length: 255 })
     description: string;
 
-    @ManyToOne(() => Category, (category) => category.Id)
-    @JoinColumn({
-        name: 'categoryId',
-        foreignKeyConstraintName: 'FK_transactions_category',
-    })
+    @ManyToOne(() => Category, (category) => category.transactions)
     category: Category;
 
-    @ManyToOne(() => User, (user) => user.Id)
-    @JoinColumn({
-        name: 'userId',
-        foreignKeyConstraintName: 'FK_transactions_user',
+    @ManyToOne(() => Ledger, (ledger) => ledger.transactions, {
+        onDelete: 'CASCADE',
     })
-    user: User;
+    ledger: Ledger;
 }

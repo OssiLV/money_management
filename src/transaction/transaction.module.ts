@@ -3,9 +3,15 @@ import { TransactionService } from './transaction.service';
 import { TransactionController } from './transaction.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Transaction } from './transaction.entity';
+import { CategoryModule } from 'src/category/category.module';
+import { LedgerModule } from 'src/ledger/ledger.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Transaction])],
+    imports: [
+        LedgerModule,
+        CategoryModule,
+        TypeOrmModule.forFeature([Transaction]),
+    ],
     controllers: [TransactionController],
     providers: [TransactionService],
 })

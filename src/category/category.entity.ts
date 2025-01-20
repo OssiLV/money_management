@@ -6,12 +6,14 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     ManyToOne,
-    JoinColumn,
-    Index,
     OneToMany,
+    CreateDateColumn,
+    UpdateDateColumn,
+    Index,
 } from 'typeorm';
 
 @Entity('category')
+@Index(['user', 'categoryName'], { unique: true })
 export class Category {
     @PrimaryGeneratedColumn('uuid')
     Id: string;
@@ -21,9 +23,7 @@ export class Category {
         type: 'nvarchar',
         length: 26,
         nullable: false,
-        unique: true,
     })
-    @Index({ unique: true })
     categoryName: string;
 
     @Column({
@@ -35,15 +35,17 @@ export class Category {
     })
     transType: TransactionType;
 
+    @CreateDateColumn({ name: 'createdDate', type: 'datetime', nullable: true })
+    createdDate: Date;
+
+    @UpdateDateColumn({ name: 'updatedDate', type: 'datetime', nullable: true })
+    updatedDate: Date;
+
     @ManyToOne(() => User, (user) => user.categories, {
         onDelete: 'CASCADE',
         nullable: true,
     })
-    @JoinColumn({
-        name: 'userId',
-        foreignKeyConstraintName: 'FK_user_categories',
-    })
-    user: User | null;
+    user: User;
 
     @OneToMany(() => Transaction, (transaction) => transaction.category)
     transactions: Transaction[];
