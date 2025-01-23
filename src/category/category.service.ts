@@ -55,6 +55,9 @@ export class CategoryService {
     }
 
     async getCategoryById(Id: string): Promise<Category> {
+        if (!isUUID(Id)) {
+            throw new BadRequestException('Invalid UUID format for userId');
+        }
         const found = await this.categoryRepository.findOne({
             where: { Id },
             relations: { user: true },
@@ -71,6 +74,9 @@ export class CategoryService {
     }
 
     async updateCategory(Id: string, updateCategoryDto: UpdateCategoryDto) {
+        if (!isUUID(Id)) {
+            throw new BadRequestException('Invalid UUID format for userId');
+        }
         try {
             const hasCategory = await this.getCategoryById(Id);
             if (!hasCategory)
@@ -126,7 +132,7 @@ export class CategoryService {
                 throw new BadRequestException('Invalid value for userId');
             } else if (
                 userId.trim().length > 0 &&
-                !isUUID(userId.trim()) &&
+                !isUUID(userId) &&
                 userId.trim().toLocaleLowerCase() !== 'null'
             ) {
                 throw new BadRequestException('Invalid UUID format for userId');

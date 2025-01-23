@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+    BadRequestException,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto, UpdateUserDto } from './dtos';
 import { Ledger } from 'src/ledger/ledger.entity';
+import { isUUID } from 'src/lib';
 
 @Injectable()
 export class UserService {
@@ -15,6 +20,9 @@ export class UserService {
     ) {}
 
     async getUserById(Id: string): Promise<User> {
+        if (!isUUID(Id)) {
+            throw new BadRequestException('Invalid UUID format for userId');
+        }
         const found = await this.userRepository.findOne({
             where: { Id },
             select: {
@@ -60,6 +68,9 @@ export class UserService {
     }
 
     async deleteUser(Id: string) {
+        if (!isUUID(Id)) {
+            throw new BadRequestException('Invalid UUID format for userId');
+        }
         const result = await this.userRepository.delete(Id);
         if (result.affected === 0) {
             throw new NotFoundException(`A user "${Id}" was not found`);
@@ -68,6 +79,9 @@ export class UserService {
     }
 
     async updateUser(Id: string, updateUserDto: UpdateUserDto) {
+        if (!isUUID(Id)) {
+            throw new BadRequestException('Invalid UUID format for userId');
+        }
         const hasUser = await this.getUserById(Id);
         if (!hasUser) throw new Error(`A user "${Id}" was not found`);
         await this.userRepository.update(Id, updateUserDto);

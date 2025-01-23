@@ -10,7 +10,9 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto } from './dtos';
 import { User } from './user.entity';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('User') // Swagger tag
 @Controller('users')
 export class UserController {
     constructor(private readonly userService: UserService) {}
@@ -22,6 +24,7 @@ export class UserController {
     }
 
     // Create a new user
+    @ApiBody({ type: CreateUserDto })
     @Post()
     createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
         return this.userService.createUser(createUserDto);
@@ -40,8 +43,9 @@ export class UserController {
     }
 
     // Update a user by ID
+    @ApiBody({ type: UpdateUserDto })
     @Put('/:Id')
-    async updateNote(@Param('Id') Id: string, @Body() data: UpdateUserDto) {
+    async updateUser(@Param('Id') Id: string, @Body() data: UpdateUserDto) {
         const user = new User();
         Object.assign(user, data);
         await this.userService.updateUser(Id, user);

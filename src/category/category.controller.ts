@@ -3,11 +3,14 @@ import { CategoryService } from './category.service';
 import { Category } from './category.entity';
 import { CreateCategoryDto, UpdateCategoryDto } from './dtos';
 import { TransactionType } from 'src/enum';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Category') // Swagger tag
 @Controller('categories')
 export class CategoryController {
     constructor(private readonly categoryService: CategoryService) {}
 
+    @ApiBody({ type: CreateCategoryDto })
     @Post()
     async createCategory(
         @Body() createCategoryDto: CreateCategoryDto,
@@ -16,6 +19,7 @@ export class CategoryController {
     }
 
     // Update a user by ID
+    @ApiBody({ type: UpdateCategoryDto })
     @Put('/:Id')
     async updateCategory(
         @Param('Id') Id: string,

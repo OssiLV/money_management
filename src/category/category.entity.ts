@@ -49,4 +49,14 @@ export class Category {
 
     @OneToMany(() => Transaction, (transaction) => transaction.category)
     transactions: Transaction[];
+
+    // ====
+
+    @ManyToOne(() => Category, (category) => category.children, {
+        nullable: true,
+    })
+    parent: Category;
+
+    @OneToMany(() => Category, (category) => category.parent)
+    children: Category;
 }

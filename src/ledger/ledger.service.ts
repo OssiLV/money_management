@@ -19,6 +19,9 @@ export class LedgerService {
     ) {}
 
     async getLedgerById(Id: string): Promise<Ledger> {
+        if (!isUUID(Id)) {
+            throw new BadRequestException('Invalid UUID format for userId');
+        }
         const found = await this.ledgerRepository.findOne({
             where: { Id },
             relations: { user: true },
@@ -71,6 +74,9 @@ export class LedgerService {
 
     async updateLedger(Id: string, updateLedgerDto: UpdateLedgerDto) {
         try {
+            if (!isUUID(Id)) {
+                throw new BadRequestException('Invalid UUID format for userId');
+            }
             const ledger = await this.getLedgerById(Id);
             if (ledger.ledgerName === 'Default') {
                 throw new BadRequestException(
@@ -110,6 +116,9 @@ export class LedgerService {
     }
 
     async getAllLedgerByUserId(userId: string): Promise<Ledger[]> {
+        if (!isUUID(userId)) {
+            throw new BadRequestException('Invalid UUID format for userId');
+        }
         let ledgers: Ledger[];
         if (userId === undefined) {
             ledgers = await this.getAllLedgers();
@@ -120,7 +129,7 @@ export class LedgerService {
                 throw new BadRequestException('Invalid value for userId');
             } else if (
                 userId.trim().length > 0 &&
-                !isUUID(userId.trim()) &&
+                !isUUID(userId) &&
                 userId.trim().toLocaleLowerCase() !== 'null'
             ) {
                 throw new BadRequestException('Invalid UUID format for userId');

@@ -1,10 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+    BadRequestException,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transaction } from './transaction.entity';
 import { Repository } from 'typeorm';
 import { CreateTransactionDto, UpdateTransactionDto } from './dtos';
 import { CategoryService } from 'src/category/category.service';
 import { LedgerService } from 'src/ledger/ledger.service';
+import { isUUID } from 'src/lib';
 
 @Injectable()
 export class TransactionService {
@@ -16,6 +21,9 @@ export class TransactionService {
     ) {}
 
     async getTransById(Id: string): Promise<Transaction> {
+        if (!isUUID(Id)) {
+            throw new BadRequestException('Invalid UUID format for userId');
+        }
         const found = await this.transRepository.findOne({
             where: { Id },
             relations: { category: true, ledger: { user: true } },
@@ -60,6 +68,9 @@ export class TransactionService {
     }
 
     async deleteTrans(Id: string) {
+        if (!isUUID(Id)) {
+            throw new BadRequestException('Invalid UUID format for userId');
+        }
         const result = await this.transRepository.delete(Id);
         if (result.affected === 0) {
             throw new NotFoundException(`A transaction "${Id}" was not found`);
@@ -68,6 +79,9 @@ export class TransactionService {
     }
 
     async updateTrans(Id: string, updateTransDto: UpdateTransactionDto) {
+        if (!isUUID(Id)) {
+            throw new BadRequestException('Invalid UUID format for userId');
+        }
         const hasTrans = await this.getTransById(Id);
         if (!hasTrans) throw new Error(`A transction "${Id}" was not found`);
         const {
